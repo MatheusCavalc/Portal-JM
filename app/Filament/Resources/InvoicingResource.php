@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\Seller;
+use Filament\Tables\Filters\Filter;
 
 class InvoicingResource extends Resource
 {
@@ -52,7 +53,7 @@ class InvoicingResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('seller_id')
+                Tables\Columns\TextColumn::make('seller.name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('value')
@@ -74,7 +75,26 @@ class InvoicingResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Filter::make('Intervalo de Datas')
+                ->form([
+                    Forms\Components\DatePicker::make('from_date')
+                        ->label('Data Inicial')
+                        ->placeholder('Selecione a data inicial'),
+                    Forms\Components\DatePicker::make('to_date')
+                        ->label('Data Final')
+                        ->placeholder('Selecione a data final'),
+                ])
+                ->query(function (Builder $query, array $data) {
+                    return $query
+                        ->when(
+                            $data['from_date'],
+                            fn (Builder $query, $from) => $query->where('initial_date', '>=', $from)
+                        )
+                        ->when(
+                            $data['to_date'],
+                            fn (Builder $query, $to) => $query->where('final_date', '<=', $to)
+                        );
+                }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
