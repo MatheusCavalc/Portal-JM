@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Models\Seller;
 
 class InvoicingResource extends Resource
 {
@@ -25,15 +26,18 @@ class InvoicingResource extends Resource
 
     protected static ?string $modelLabel = 'Faturamento';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('seller_id')
+                Forms\Components\Select::make('seller_id')
                     ->required()
-                    ->numeric(),
+                    ->placeholder('Selecione um Vendedor')
+                    ->label('Vendedor')
+                    ->options(Seller::all()->pluck('name', 'id'))
+                    ->searchable(),
                 Forms\Components\TextInput::make('value')
                     ->required()
                     ->numeric(),
