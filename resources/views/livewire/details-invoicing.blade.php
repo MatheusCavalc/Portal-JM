@@ -97,8 +97,8 @@
             </div>
 
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <table class="w-full text-sm text-left text-gray-500 rtl:text-right dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <table class="w-full text-sm text-left text-gray-500 rtl:text-right">
+                    <thead class="text-xs text-gray-700 bg-gray-50">
                         <tr>
                             <th scope="col" class="px-3 py-3">
                                 Vendedor
@@ -117,7 +117,7 @@
                     <tbody>
                         @foreach ($data as $sellerName => $values)
                             <tr
-                                class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                class="bg-white border-b hover:bg-gray-50">
                                 <td class="px-3 py-4">{{ $sellerName }}</td>
                                 @foreach ($dateIntervals as $interval)
                                     @php
@@ -129,7 +129,7 @@
                             </tr>
                         @endforeach
                         <tr
-                            class="font-bold bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            class="font-bold bg-white border-b hover:bg-gray-50">
                             <td class="px-3 py-4">Total Geral</td>
                             @foreach ($dateIntervals as $interval)
                                 @php $key = "{$interval->initial_date} a {$interval->final_date}" @endphp
@@ -145,7 +145,7 @@
         </div>
     </div>
 
-    <div class="flex justify-center mt-5">
+    <div class="flex justify-center mt-5 bg-white">
         <div id="chart"></div>
     </div>
 
