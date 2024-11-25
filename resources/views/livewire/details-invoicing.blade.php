@@ -27,7 +27,7 @@
                         <!-- Button -->
                         <button x-ref="button" x-on:click="toggle()" :aria-expanded="open"
                             :aria-controls="$id('dropdown-button')" type="button"
-                            class="flex items-center gap-2 focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900">
+                            class="flex items-center gap-2 focus:outline-none text-white bg-yellow-600 hover:bg-yellow-500 font-medium rounded-md text-sm px-3 py-2 me-2 mb-2">
                             Adicionar Filtro
 
                             <!-- Heroicon: chevron-down -->
@@ -42,7 +42,7 @@
                         <!-- Panel -->
                         <div x-ref="panel" x-show="open" x-transition.origin.top.left
                             x-on:click.outside="close($refs.button)" :id="$id('dropdown-button')" style="display: none;"
-                            class="absolute left-0 z-50 px-4 py-2 mt-2 bg-white rounded-md shadow-md w-72">
+                            class="absolute left-0 z-50 px-4 py-2 mt-2 bg-white dark:bg-gray-950 dark:text-white rounded-md shadow-md w-72">
 
                             <div class="flex justify-between my-3">
                                 <p class="font-bold">Filtros</p>
@@ -73,7 +73,7 @@
                 </div>
 
                 <button type="button" onclick="printTable()"
-                    class="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900">
+                    class="focus:outline-none text-white bg-yellow-600 hover:bg-yellow-500 font-medium rounded-md text-sm px-3 py-2 me-2 mb-2">
                     Imprimir Dados
                 </button>
             </div>
@@ -145,7 +145,7 @@
         </div>
     </div>
 
-    <div class="flex justify-center mt-5 bg-white">
+    <div class="flex justify-center mt-5 dark:bg-white">
         <div id="chart"></div>
     </div>
 
