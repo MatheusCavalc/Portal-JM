@@ -42,12 +42,12 @@
                         <!-- Panel -->
                         <div x-ref="panel" x-show="open" x-transition.origin.top.left
                             x-on:click.outside="close($refs.button)" :id="$id('dropdown-button')" style="display: none;"
-                            class="absolute -left-20 z-50 px-4 py-2 mt-2 bg-white dark:bg-gray-950 dark:text-white rounded-md shadow-md w-96">
+                            class="absolute -5 lg:-left-20 z-50 px-4 py-5 mt-2 bg-white dark:bg-gray-950 dark:text-white rounded-md shadow-lg w-72 lg:w-96">
 
-                            <div class="flex justify-between my-3">
+                            <div class="flex justify-between mb-3">
                                 <p class="font-bold">Filtros</p>
 
-                                <button wire:click='defaultFilter'
+                                <button wire:click='cleanFilters'
                                     class="text-sm font-bold text-red-500 hover:underline">Limpar Filtros</button>
                             </div>
 
@@ -64,9 +64,9 @@
                                         <option value="{{ $key }}">{{ $month }}</option>
                                     @endforeach
                                 </select>
-                                @if (session()->has('error'))
+                                @if (session()->has('errorMonth'))
                                     <div class="text-red-500 text-sm my-2">
-                                        {{ session('error') }}
+                                        {{ session('errorMonth') }}
                                     </div>
                                 @endif
 
@@ -78,26 +78,35 @@
                                 </div>
                             </form>
 
-                            <div>
-                                <label for="date-range-picker" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            <form wire:submit.prevent="applyDateRangeFilter">
+                                <label for="date-range-picker"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                     Selecione um Intervalo de Datas
                                 </label>
-                                <div class="flex items-center space-x-2">
-                                    <div class="relative w-36">
-                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                                <div class="flex flex-col lg:flex-row justify-center items-center gap-2 lg:gap-3">
+                                    <div class="relative w-full lg:w-40">
+                                        <div
+                                            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                                xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path
+                                                    d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
                                             </svg>
                                         </div>
                                         <input id="datepicker-range-start" wire:model="filterInitialDate" type="date"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                             placeholder="Data inicial">
                                     </div>
-                                    <span class="text-gray-500">até</span>
-                                    <div class="relative w-36">
-                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                                    <span class="text-gray-500">a</span>
+                                    <div class="relative w-full lg:w-40">
+                                        <div
+                                            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                                xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path
+                                                    d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
                                             </svg>
                                         </div>
                                         <input id="datepicker-range-end" wire:model="filterFinalDate" type="date"
@@ -105,21 +114,23 @@
                                             placeholder="Data final">
                                     </div>
                                 </div>
+
+                                <div class="mt-2">
+                                    @if (session()->has('error'))
+                                        <div class="text-red-500 text-sm">
+                                            {{ session('error') }}
+                                        </div>
+                                    @endif
+                                </div>
+
                                 <div class="flex justify-end mt-4">
-                                    <button type="button" wire:click="applyDateRangeFilter"
+                                    <button type="submit"
                                         class="px-4 py-2 bg-blue-500 text-white text-sm font-bold rounded hover:bg-blue-600">
-                                        Aplicar Filtro
+                                        Aplicar Filtro de Intervalo de Datas
                                     </button>
                                 </div>
-                            </div>
+                            </form>
 
-                            <div class="mt-2">
-                                @if (session()->has('error'))
-                                    <div class="text-red-500 text-sm">
-                                        {{ session('error') }}
-                                    </div>
-                                @endif
-                            </div>
 
                         </div>
                     </div>

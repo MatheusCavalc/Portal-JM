@@ -3,168 +3,11 @@
 namespace App\Livewire;
 
 use App\Models\Invoicing;
-use App\Services\InvoicingService;
 use Carbon\Carbon;
 use Livewire\Component;
 
 class DetailsInvoicing extends Component
 {
-    /*
-    public $data = [];
-
-    public $totalsByInterval = [];
-
-    public $dateIntervals = [];
-
-    public $grandTotal = 0;
-
-    public function filterInvoices()
-    {
-        $initialDate = $request->input('initial_date');
-        $finalDate = $request->input('final_date');
-        $month = $request->input('month');
-
-        // Adiciona o mês ao filtro
-        $year = $request->input('year');
-
-        // Adiciona o ano ao filtro
-        $sellerType = $request->input('seller_type');
-
-        // Adiciona o tipo de vendedor ao filtro
-        // Se o mês e o ano forem fornecidos, usar essas datas
-        if ($month && $year) {
-            $initialDate = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
-            $finalDate = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
-        } else {
-            // Se as datas não forem fornecidas, usar o mês atual como padrão
-            if (!$initialDate || !$finalDate) {
-                $initialDate = Carbon::now()->startOfMonth()->toDateString();
-                $finalDate = Carbon::now()->endOfMonth()->toDateString();
-            }
-        }
-        // Ajustar as datas para representar uma semana (segunda a sexta-feira)
-        $initialDate = Carbon::parse($initialDate)->startOfWeek()->toDateString();
-        $finalDate = Carbon::parse($finalDate)->endOfWeek()->subDays(2)->toDateString();
-
-        // Subtrai 2 dias para obter sexta-feira
-        // Filtrar os intervalos de datas
-        $this->dateIntervals = Invoicing::select('initial_date', 'final_date')
-            ->whereBetween('final_date', [$initialDate, $finalDate])
-            ->distinct()
-            ->orderBy('final_date')
-            ->get();
-
-        // Filtrar as vendas com base nos intervalos de datas obtidos
-        $salesQuery = Invoicing::with('seller')
-            ->select('seller_id', 'initial_date', 'final_date', 'value')
-            ->whereIn('initial_date', $this->dateIntervals->pluck('initial_date'));
-
-        // Adicionar filtro de tipo de vendedor, se fornecido
-        if ($sellerType) {
-            $salesQuery->whereHas('seller', function ($query) use ($sellerType) {
-                $query->where('type', $sellerType);
-            });
-        }
-
-        $sales = $salesQuery->get();
-
-        $this->data = [];
-        $this->totalsByInterval = [];
-        $this->grandTotal = 0;
-
-        foreach ($sales as $sale) {
-            $sellerName = $sale->seller->name; // Obter o nome do vendedor
-            $key = "{$sale->initial_date} a {$sale->final_date}";
-            $this->data[$sellerName][$key] = $sale->value; // Incrementar a soma total do vendedor
-
-            if (!isset($this->data[$sellerName]['total'])) {
-                $this->data[$sellerName]['total'] = 0;
-            }
-            $this->data[$sellerName]['total'] += $sale->value;
-            // Calcular o total por intervalo
-            if (!isset($this->totalsByInterval[$key])) {
-                $this->totalsByInterval[$key] = 0;
-            }
-            $this->totalsByInterval[$key] += $sale->value;
-
-            // Calcular o total geral
-            $this->grandTotal += $sale->value;
-        }
-
-        // Garantir que todas as colunas estejam presentes para cada vendedor
-        foreach ($this->data as $sellerName => $intervals) {
-            foreach ($this->dateIntervals as $interval) {
-                $key = "{$interval->initial_date} a {$interval->final_date}";
-                if (!isset($this->data[$sellerName][$key])) {
-                    $this->data[$sellerName][$key] = 0; // Valor padrão
-                }
-            }
-        }
-
-        return response()->json([
-            'data' => $this->data,
-            'totalsByInterval' => $this->totalsByInterval,
-            'grandTotal' => $this->grandTotal,
-        ]);
-    }
-
-    public function clearFilters()
-    {
-        // Define as datas para o início e fim do mês atual
-        $initialDate = Carbon::now()->startOfMonth()->toDateString();
-        $finalDate = Carbon::now()->endOfMonth()->toDateString();
-
-        // Filtrar os intervalos de datas do mês atual
-        $this->dateIntervals = Invoicing::select('initial_date', 'final_date')
-            ->whereBetween('final_date', [$initialDate, $finalDate])
-            ->distinct()
-            ->orderBy('final_date')
-            ->get();
-
-        // Filtrar as vendas com base nos intervalos de datas obtidos
-        $sales = Invoicing::with('seller')
-            ->select('seller_id', 'initial_date', 'final_date', 'value')
-            ->whereIn('initial_date', $this->dateIntervals->pluck('initial_date'))
-            ->get();
-
-        $this->data = [];
-        $this->totalsByInterval = [];
-        $this->grandTotal = 0;
-
-        foreach ($sales as $sale) {
-            $sellerName = $sale->seller->name; // Obter o nome do vendedor
-            $key = "{$sale->initial_date} a {$sale->final_date}";
-            $this->data[$sellerName][$key] = $sale->value;
-
-            // Incrementar a soma total do vendedor
-            if (!isset($this->data[$sellerName]['total'])) {
-                $this->data[$sellerName]['total'] = 0;
-            }
-            $this->data[$sellerName]['total'] += $sale->value;
-            // Calcular o total por intervalo
-            if (!isset($this->totalsByInterval[$key])) {
-                $this->totalsByInterval[$key] = 0;
-            }
-            $this->totalsByInterval[$key] += $sale->value; // Calcular o total geral
-            $this->grandTotal += $sale->value;
-        }
-
-        // Garantir que todas as colunas estejam presentes para cada vendedor
-        foreach ($this->data as $sellerName => $intervals) {
-            foreach ($this->dateIntervals as $interval) {
-                $key = "{$interval->initial_date} a {$interval->final_date}";
-                if (!isset($this->data[$sellerName][$key])) {
-                    $this->data[$sellerName][$key] = 0; // Valor padrão
-                }
-            }
-        }
-
-        return response()->json(['data' => $this->data, 'totalsByInterval' => $this->totalsByInterval, 'grandTotal' => $this->grandTotal,]);
-    }
-        */
-
-
-
     public $dateIntervals = [];
 
     public $data = [];
@@ -207,6 +50,23 @@ class DetailsInvoicing extends Component
             11 => "Novembro",
             12 => "Dezembro"
         ];
+
+        $this->currentMonth = Carbon::now()->month;
+        $this->previousMonth = Carbon::now()->subMonth()->month;
+
+        $this->currentYear = Carbon::now()->year;
+        $this->previousYear = Carbon::now()->subMonth()->year;
+
+        $this->defaultFilter();
+    }
+
+    public function cleanFilters()
+    {
+        $this->filterMonth = '';
+
+        $this->filterInitialDate = '';
+
+        $this->filterFinalDate = '';
 
         $this->currentMonth = Carbon::now()->month;
         $this->previousMonth = Carbon::now()->subMonth()->month;
@@ -293,6 +153,8 @@ class DetailsInvoicing extends Component
             return session()->flash('error', 'Por favor, selecione ambas as datas para aplicar o filtro.');
         }
 
+        $this->filterMonth = '';
+
         // Validar que a data inicial não seja maior que a final
         if (Carbon::parse($this->filterInitialDate)->gt(Carbon::parse($this->filterFinalDate))) {
             return session()->flash('error', 'A data inicial não pode ser maior que a data final.');
@@ -355,14 +217,22 @@ class DetailsInvoicing extends Component
     public function applyFilters()
     {
         if (!$this->filterMonth) {
-            return session()->flash('error', 'Por favor, selecione um mês para filtrar.');
+            // Exibe mensagem de erro e sai do método
+            return session()->flash('errorMonth', 'Por favor, selecione um mês para filtrar.');
         }
 
+        $this->filterInitialDate = '';
+
+        $this->filterFinalDate = '';
+
+        // Atualiza os valores apenas se um mês válido for selecionado
         $this->currentMonth = $this->filterMonth;
         $this->previousMonth = $this->filterMonth;
 
+        // Chama o filtro padrão
         $this->defaultFilter();
 
+        // Atualiza o gráfico com os dados processados
         $this->dispatch('update-chart', ['data' => $this->data]);
     }
 
