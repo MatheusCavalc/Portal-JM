@@ -33,6 +33,13 @@ class SellerResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required(),
+                Forms\Components\Select::make('role')
+                    ->label('Categoria')
+                    ->placeholder('Selecione a categoria de venda')
+                    ->options([
+                        'Pronta Entrega' => 'Pronta Entrega',
+                        'Pré Venda' => 'Pré Venda',
+                    ])
             ]);
     }
 
@@ -41,6 +48,10 @@ class SellerResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nome')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('role')
+                    ->label('Categoria')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

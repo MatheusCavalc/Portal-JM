@@ -27,11 +27,12 @@
                         <!-- Button -->
                         <button x-ref="button" x-on:click="toggle()" :aria-expanded="open"
                             :aria-controls="$id('dropdown-button')" type="button"
-                            class="flex items-center gap-2 focus:outline-none text-white bg-yellow-600 hover:bg-yellow-500 font-medium rounded-md text-sm px-3 py-2 me-2 mb-2">
+                            class="flex items-center gap-2 focus:outline-none text-white bg-[#d97706] hover:bg-yellow-500 font-medium rounded-md text-sm px-3 py-2 me-2 mb-2">
                             Adicionar Filtro
 
                             <!-- Heroicon: chevron-down -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 20 20"
+                            <svg xmlns="http://www.w3.org/2000/svg" :class="{ '-rotate-180': open }"
+                                class="w-5 h-5 text-white transition duration-500 ease-in-out" viewBox="0 0 20 20"
                                 fill="currentColor">
                                 <path fill-rule="evenodd"
                                     d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -51,7 +52,22 @@
                                     class="text-sm font-bold text-red-500 hover:underline">Limpar Filtros</button>
                             </div>
 
-                            <!--Month Filter-->
+                            <!-- Role Filter -->
+                            <div class="mb-4">
+                                <label for="filterRole" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                    Selecione a Categoria de Venda
+                                </label>
+                                <select id="filterRole" wire:model="filterRole"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                    <option value="all" selected>Todas</option>
+                                    <option value="Pré Venda">Pré Venda</option>
+                                    <option value="Pronta Entrega">Pronta Entrega</option>
+                                </select>
+                            </div>
+
+                            <hr class="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700">
+
+                            <!-- Month Filter -->
                             <form wire:submit.prevent="applyFilters">
                                 <label for="filterMonth"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -72,12 +88,13 @@
 
                                 <div class="flex justify-end my-4">
                                     <button type="submit"
-                                        class="px-4 py-2 bg-blue-500 text-white text-sm font-bold rounded hover:bg-blue-600">
+                                        class="px-4 py-2 bg-blue-500 text-white text-sm font-bold rounded-md hover:bg-blue-600">
                                         Aplicar Filtro Mensal
                                     </button>
                                 </div>
                             </form>
 
+                            <!-- Month Range Filter -->
                             <form wire:submit.prevent="applyDateRangeFilter">
                                 <label for="date-range-picker"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -95,7 +112,7 @@
                                             </svg>
                                         </div>
                                         <input id="datepicker-range-start" wire:model="filterInitialDate" type="date"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                             placeholder="Data inicial">
                                     </div>
                                     <span class="text-gray-500">a</span>
@@ -131,13 +148,12 @@
                                 </div>
                             </form>
 
-
                         </div>
                     </div>
                 </div>
 
                 <button type="button" onclick="printTable()"
-                    class="focus:outline-none text-white bg-yellow-600 hover:bg-yellow-500 font-medium rounded-md text-sm px-3 py-2 me-2 mb-2">
+                    class="text-white bg-[#d97706] hover:bg-yellow-500 font-medium rounded-md text-sm px-3 py-2 me-2 mb-2">
                     Imprimir Dados
                 </button>
             </div>
@@ -147,7 +163,14 @@
             <div class="mb-5">
                 <div>
                     <p class="text-xl font-bold">
-                        Dados do
+                        Dados
+                        @if ($this->filterRole == 'Pré Venda')
+                            da Pré Venda
+                        @elseif ($this->filterRole == 'Pronta Entrega')
+                            da Pronta Entrega
+                        @else
+                        @endif
+                        do
                         @if ($this->filterInitialDate && $this->filterFinalDate)
                             intervalo de {{ \Carbon\Carbon::parse($this->filterInitialDate)->format('d/m/Y') }}
                             a {{ \Carbon\Carbon::parse($this->filterFinalDate)->format('d/m/Y') }}
@@ -178,7 +201,7 @@
                                 </th>
                             @endforeach
                             <th scope="col" class="px-3 py-3">
-                                Total Mes
+                                Total Mês
                             </th>
                         </tr>
                     </thead>

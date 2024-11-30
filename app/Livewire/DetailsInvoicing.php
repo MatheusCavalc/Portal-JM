@@ -32,6 +32,8 @@ class DetailsInvoicing extends Component
 
     public $filterInitialDate = '';
 
+    public $filterRole = '';
+
     public $filterFinalDate = '';
 
     public function mount()
@@ -57,6 +59,8 @@ class DetailsInvoicing extends Component
         $this->currentYear = Carbon::now()->year;
         $this->previousYear = Carbon::now()->subMonth()->year;
 
+        $this->filterRole = 'all';
+
         $this->defaultFilter();
     }
 
@@ -73,6 +77,8 @@ class DetailsInvoicing extends Component
 
         $this->currentYear = Carbon::now()->year;
         $this->previousYear = Carbon::now()->subMonth()->year;
+
+        $this->filterRole = 'all';
 
         $this->defaultFilter();
     }
@@ -100,10 +106,29 @@ class DetailsInvoicing extends Component
         }
 
         // Buscar vendas
-        $sales = Invoicing::with('seller')
+        $sales = Invoicing::with(['seller' => function ($query) {
+            $query->select('id', 'name', 'role'); // Certifique-se de incluir 'role'
+        }])
             ->select('seller_id', 'initial_date', 'final_date', 'value')
             ->whereIn('initial_date', $dateIntervals->pluck('initial_date'))
             ->get();
+
+        // Iniciar a consulta de vendas
+        $salesQuery = Invoicing::with(['seller' => function ($query) {
+            $query->select('id', 'name', 'role'); // Carrega a role dos vendedores
+        }])
+            ->select('seller_id', 'initial_date', 'final_date', 'value')
+            ->whereIn('initial_date', $dateIntervals->pluck('initial_date'));
+
+        // Se o filtro de role não for "all", aplica a condição de role
+        if ($this->filterRole !== 'all') {
+            $salesQuery->whereHas('seller', function ($query) {
+                $query->where('role', $this->filterRole);
+            });
+        }
+
+        // Executar a consulta
+        $sales = $salesQuery->get();
 
         // Organizar dados
         $data = [];
@@ -112,7 +137,15 @@ class DetailsInvoicing extends Component
 
         foreach ($sales as $sale) {
             $sellerName = $sale->seller->name;
+            $sellerRole = $sale->seller->role; // Adiciona a role do vendedor
             $key = "{$sale->initial_date} a {$sale->final_date}";
+
+            // Inicializa os dados do vendedor se não existir
+            if (!isset($data[$sellerName])) {
+                $data[$sellerName] = [
+                    'role' => $sellerRole, // Armazena a role
+                ];
+            }
 
             $data[$sellerName][$key] = $sale->value;
 
@@ -153,18 +186,31 @@ class DetailsInvoicing extends Component
             return session()->flash('error', 'Por favor, selecione ambas as datas para aplicar o filtro.');
         }
 
-        $this->filterMonth = '';
+        $this->filterMonth = ''; // Limpar o filtro de mês, caso seja necessário.
 
         // Validar que a data inicial não seja maior que a final
         if (Carbon::parse($this->filterInitialDate)->gt(Carbon::parse($this->filterFinalDate))) {
             return session()->flash('error', 'A data inicial não pode ser maior que a data final.');
         }
 
-        $sales = Invoicing::with('seller')
+        // Construção da consulta
+        $salesQuery = Invoicing::with(['seller' => function ($query) {
+            $query->select('id', 'name', 'role'); // Certifique-se de carregar a role dos vendedores
+        }])
             ->select('seller_id', 'initial_date', 'final_date', 'value')
-            ->whereBetween('final_date', [$this->filterInitialDate, $this->filterFinalDate])
-            ->get();
+            ->whereBetween('final_date', [$this->filterInitialDate, $this->filterFinalDate]);
 
+        // Aplicar o filtro de role
+        if ($this->filterRole !== 'all') {
+            $salesQuery->whereHas('seller', function ($query) {
+                $query->where('role', $this->filterRole);
+            });
+        }
+
+        // Obter os dados filtrados
+        $sales = $salesQuery->get();
+
+        // Processar as vendas
         $this->processSales($sales);
     }
 
@@ -193,6 +239,7 @@ class DetailsInvoicing extends Component
             $this->grandTotal += $sale->value;
         }
 
+        // Atualizar o gráfico com os dados filtrados
         $this->dispatch('update-chart', ['data' => $this->data]);
     }
 
