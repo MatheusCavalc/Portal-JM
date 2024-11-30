@@ -42,32 +42,85 @@
                         <!-- Panel -->
                         <div x-ref="panel" x-show="open" x-transition.origin.top.left
                             x-on:click.outside="close($refs.button)" :id="$id('dropdown-button')" style="display: none;"
-                            class="absolute left-0 z-50 px-4 py-2 mt-2 bg-white dark:bg-gray-950 dark:text-white rounded-md shadow-md w-72">
+                            class="absolute -left-20 z-50 px-4 py-2 mt-2 bg-white dark:bg-gray-950 dark:text-white rounded-md shadow-md w-96">
 
                             <div class="flex justify-between my-3">
                                 <p class="font-bold">Filtros</p>
 
-                                <button wire:click='clearFilters'
+                                <button wire:click='defaultFilter'
                                     class="text-sm font-bold text-red-500 hover:underline">Limpar Filtros</button>
                             </div>
 
-                            <div>
-                                <label for="countries"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Selecione um
-                                    Mes</label>
-                                <select id="countries" wire:model="filterMonth"
+                            <!--Month Filter-->
+                            <form wire:submit.prevent="applyFilters">
+                                <label for="filterMonth"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                    Selecione um Mês
+                                </label>
+                                <select id="filterMonth" wire:model="filterMonth"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                    <option selected disabled>Escolha um mes</option>
+                                    <option selected>Escolha um mês</option>
                                     @foreach ($months as $key => $month)
                                         <option value="{{ $key }}">{{ $month }}</option>
                                     @endforeach
                                 </select>
+                                @if (session()->has('error'))
+                                    <div class="text-red-500 text-sm my-2">
+                                        {{ session('error') }}
+                                    </div>
+                                @endif
+
+                                <div class="flex justify-end my-4">
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-blue-500 text-white text-sm font-bold rounded hover:bg-blue-600">
+                                        Aplicar Filtro Mensal
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div>
+                                <label for="date-range-picker" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                    Selecione um Intervalo de Datas
+                                </label>
+                                <div class="flex items-center space-x-2">
+                                    <div class="relative w-36">
+                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                                            </svg>
+                                        </div>
+                                        <input id="datepicker-range-start" wire:model="filterInitialDate" type="date"
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            placeholder="Data inicial">
+                                    </div>
+                                    <span class="text-gray-500">até</span>
+                                    <div class="relative w-36">
+                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                                            </svg>
+                                        </div>
+                                        <input id="datepicker-range-end" wire:model="filterFinalDate" type="date"
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            placeholder="Data final">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end mt-4">
+                                    <button type="button" wire:click="applyDateRangeFilter"
+                                        class="px-4 py-2 bg-blue-500 text-white text-sm font-bold rounded hover:bg-blue-600">
+                                        Aplicar Filtro
+                                    </button>
+                                </div>
                             </div>
 
-                            <div class="flex justify-end my-4">
-                                <button wire:click='addFilters'
-                                    class="text-sm font-bold text-blue-500 hover:underline">Aplicar Filtros</button>
+                            <div class="mt-2">
+                                @if (session()->has('error'))
+                                    <div class="text-red-500 text-sm">
+                                        {{ session('error') }}
+                                    </div>
+                                @endif
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -83,15 +136,19 @@
             <div class="mb-5">
                 <div>
                     <p class="text-xl font-bold">
-                        Dados do mês de
-                        @if ($this->currentMonth)
-                            {{ $months[$this->currentMonth] }}
-                        @elseif ($this->previousMonth)
-                            {{ $months[$this->previousMonth] }}
+                        Dados do
+                        @if ($this->filterInitialDate && $this->filterFinalDate)
+                            intervalo de {{ \Carbon\Carbon::parse($this->filterInitialDate)->format('d/m/Y') }}
+                            a {{ \Carbon\Carbon::parse($this->filterFinalDate)->format('d/m/Y') }}
                         @elseif ($this->filterMonth)
-                            {{ $months[$this->filterMonth] }}
+                            mês de {{ $months[$this->filterMonth] }} de {{ $this->currentYear }}
+                        @elseif ($this->currentMonth)
+                            mês de {{ $months[$this->currentMonth] }} de {{ $this->currentYear }}
+                        @elseif ($this->previousMonth)
+                            mês de {{ $months[$this->previousMonth] }} de {{ $this->previousYear }}
+                        @else
+                            período selecionado
                         @endif
-                        de {{ $this->currentYear }}
                     </p>
                 </div>
             </div>
@@ -116,8 +173,7 @@
                     </thead>
                     <tbody>
                         @foreach ($data as $sellerName => $values)
-                            <tr
-                                class="bg-white border-b hover:bg-gray-50">
+                            <tr class="bg-white border-b hover:bg-gray-50">
                                 <td class="px-3 py-4">{{ $sellerName }}</td>
                                 @foreach ($dateIntervals as $interval)
                                     @php
@@ -128,8 +184,7 @@
                                 <td class="px-3 py-4">R$ {{ number_format($values['total'], 2, ',', '.') }}</td>
                             </tr>
                         @endforeach
-                        <tr
-                            class="font-bold bg-white border-b hover:bg-gray-50">
+                        <tr class="font-bold bg-white border-b hover:bg-gray-50">
                             <td class="px-3 py-4">Total Geral</td>
                             @foreach ($dateIntervals as $interval)
                                 @php $key = "{$interval->initial_date} a {$interval->final_date}" @endphp
