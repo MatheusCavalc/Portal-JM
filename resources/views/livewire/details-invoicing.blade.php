@@ -1,4 +1,4 @@
-<div class="bg-gray-300 dark:bg-gray-950">
+<div class="dark:bg-gray-950">
     <div>
         <div class="flex items-center justify-end mb-5">
             <div class="flex gap-1">
@@ -188,7 +188,7 @@
                 </div>
             </div>
 
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <div class="relative overflow-x-auto shadow-lg sm:rounded-lg border border-gray-300">
                 <table class="w-full text-sm text-left text-gray-500 rtl:text-right">
                     <thead class="text-xs text-gray-700 bg-gray-50">
                         <tr>
@@ -308,7 +308,7 @@
                 series: series,
                 chart: {
                     type: 'pie',
-                    width: 450,
+                    width: 550,
                 },
                 labels: labels,
                 responsive: [{
@@ -337,7 +337,7 @@
                 series: series,
                 chart: {
                     type: 'pie',
-                    width: 450,
+                    width: 550,
                 },
                 labels: labels,
                 responsive: [{
