@@ -262,13 +262,13 @@
 
     <div class="flex flex-col lg:flex-row justify-center mt-5 gap-5 dark:bg-white">
         <div>
-            <p class="text-2xl font-bold text-center mb-4">Faturamento em NFE's</p>
+            <p class="text-2xl font-bold text-left mb-4">Faturamento em NFE's</p>
 
             <div id="chart-nfe"></div>
         </div>
 
         <div>
-            <p class="text-2xl font-bold text-center mb-4">Faturamento em Boletos</p>
+            <p class="text-2xl font-bold text-left mb-4">Faturamento em Boletos</p>
 
             <div id="chart-bol"></div>
         </div>

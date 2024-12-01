@@ -59,8 +59,8 @@ class DatabaseSeeder extends Seeder
 
             Invoicing::create([
                 'seller_id' => $i,
-                'nfe_value' => fake()->numberBetween(59800.00, 60000.00),
-                'bol_value' => fake()->numberBetween(59700.00, 59800.00),
+                'nfe_value' => fake()->numberBetween(49800.00, 50000.00),
+                'bol_value' => fake()->numberBetween(49700.00, 49800.00),
                 'initial_date' => '2024-11-11',
                 'final_date' => '2024-11-15',
                 'month_sale' => 11
@@ -68,8 +68,8 @@ class DatabaseSeeder extends Seeder
 
             Invoicing::create([
                 'seller_id' => $i,
-                'nfe_value' => fake()->numberBetween(59800.00, 60000.00),
-                'bol_value' => fake()->numberBetween(59700.00, 59800.00),
+                'nfe_value' => fake()->numberBetween(39800.00, 40000.00),
+                'bol_value' => fake()->numberBetween(39700.00, 39800.00),
                 'initial_date' => '2024-11-18',
                 'final_date' => '2024-11-22',
                 'month_sale' => 11
@@ -77,8 +77,8 @@ class DatabaseSeeder extends Seeder
 
             Invoicing::create([
                 'seller_id' => $i,
-                'nfe_value' => fake()->numberBetween(59800.00, 60000.00),
-                'bol_value' => fake()->numberBetween(59700.00, 59800.00),
+                'nfe_value' => fake()->numberBetween(29800.00, 30000.00),
+                'bol_value' => fake()->numberBetween(29700.00, 29800.00),
                 'initial_date' => '2024-11-25',
                 'final_date' => '2024-11-29',
                 'month_sale' => 11
@@ -88,8 +88,8 @@ class DatabaseSeeder extends Seeder
         for ($i = 1; $i < 5; $i++) {
             Invoicing::create([
                 'seller_id' => $i,
-                'nfe_value' => fake()->numberBetween(59800.00, 60000.00),
-                'bol_value' => fake()->numberBetween(59700.00, 59800.00),
+                'nfe_value' => fake()->numberBetween(39800.00, 40000.00),
+                'bol_value' => fake()->numberBetween(39700.00, 39800.00),
                 'initial_date' => '2024-09-30',
                 'final_date' => '2024-10-04',
                 'month_sale' => 10,
@@ -97,8 +97,8 @@ class DatabaseSeeder extends Seeder
 
             Invoicing::create([
                 'seller_id' => $i,
-                'nfe_value' => fake()->numberBetween(59800.00, 60000.00),
-                'bol_value' => fake()->numberBetween(59700.00, 59800.00),
+                'nfe_value' => fake()->numberBetween(19800.00, 20000.00),
+                'bol_value' => fake()->numberBetween(19700.00, 19800.00),
                 'initial_date' => '2024-10-07',
                 'final_date' => '2024-10-11',
                 'month_sale' => 10,
@@ -115,8 +115,8 @@ class DatabaseSeeder extends Seeder
 
             Invoicing::create([
                 'seller_id' => $i,
-                'nfe_value' => fake()->numberBetween(59800.00, 60000.00),
-                'bol_value' => fake()->numberBetween(59700.00, 59800.00),
+                'nfe_value' => fake()->numberBetween(19800.00, 20000.00),
+                'bol_value' => fake()->numberBetween(19700.00, 19800.00),
                 'initial_date' => '2024-10-21',
                 'final_date' => '2024-10-25',
                 'month_sale' => 10,
@@ -124,8 +124,8 @@ class DatabaseSeeder extends Seeder
 
             Invoicing::create([
                 'seller_id' => $i,
-                'nfe_value' => fake()->numberBetween(59800.00, 60000.00),
-                'bol_value' => fake()->numberBetween(59700.00, 59800.00),
+                'nfe_value' => fake()->numberBetween(49800.00, 50000.00),
+                'bol_value' => fake()->numberBetween(49700.00, 49800.00),
                 'initial_date' => '2024-10-28',
                 'final_date' => '2024-11-01',
                 'month_sale' => 10,

@@ -11,9 +11,11 @@ class DetailsInvoicing extends Page
 
     protected static ?string $navigationGroup = 'Vendas';
 
-    protected static ?string $navigationLabel = 'Detalhes Faturamento';
+    protected static ?string $title = 'Detalhes dos Faturamentos';
 
-    protected static ?string $modelLabel = 'Detalhes Faturamento';
+    protected static ?string $navigationLabel = 'Detalhes dos Faturamentos';
+
+    protected static ?string $modelLabel = 'Detalhes dos Faturamento';
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
