@@ -1,4 +1,4 @@
-<div>
+<div class="bg-gray-300 dark:bg-gray-950">
     <div>
         <div class="flex items-center justify-end mb-5">
             <div class="flex gap-1">
@@ -260,7 +260,7 @@
         </div>
     </div>
 
-    <div class="flex flex-col lg:flex-row justify-center mt-5 gap-5 dark:bg-white">
+    <div class="flex flex-col lg:flex-row justify-center mt-5 gap-5">
         <div>
             <p class="text-2xl font-bold text-left mb-4">Faturamento em NFE's</p>
 
