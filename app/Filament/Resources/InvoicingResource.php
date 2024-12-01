@@ -39,13 +39,20 @@ class InvoicingResource extends Resource
                     ->label('Vendedor')
                     ->options(Seller::all()->pluck('name', 'id'))
                     ->searchable(),
-                Forms\Components\TextInput::make('value')
+                Forms\Components\TextInput::make('nfe_value')
                     ->required()
+                    ->placeholder('Valor Total das NFE')
+                    ->numeric(),
+                Forms\Components\TextInput::make('bol_value')
+                    ->required()
+                    ->placeholder('Valor Total dos Boletos')
                     ->numeric(),
                 Forms\Components\DatePicker::make('initial_date')
-                    ->required(),
+                    ->required()
+                    ->placeholder('Data Inicial'),
                 Forms\Components\DatePicker::make('final_date')
-                    ->required(),
+                    ->required()
+                    ->placeholder('Data Final'),
             ]);
     }
 
@@ -56,7 +63,10 @@ class InvoicingResource extends Resource
                 Tables\Columns\TextColumn::make('seller.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('value')
+                Tables\Columns\TextColumn::make('nfe_value')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('bol_value')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('initial_date')

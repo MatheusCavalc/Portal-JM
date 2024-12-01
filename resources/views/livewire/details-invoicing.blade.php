@@ -54,7 +54,8 @@
 
                             <!-- Role Filter -->
                             <div class="mb-4">
-                                <label for="filterRole" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                <label for="filterRole"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                     Selecione a Categoria de Venda
                                 </label>
                                 <select id="filterRole" wire:model="filterRole"
@@ -191,42 +192,67 @@
                 <table class="w-full text-sm text-left text-gray-500 rtl:text-right">
                     <thead class="text-xs text-gray-700 bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-3 py-3">
-                                Vendedor
-                            </th>
+                            <th scope="col" class="px-2 py-3">Vendedor</th>
                             @foreach ($dateIntervals as $interval)
-                                <th scope="col" class="px-3 py-3">
+                                <th colspan="2" class="px-2 py-3 text-center border-r-2 border-gray-300">
                                     {{ date('d/m', strtotime($interval->initial_date)) }} a
                                     {{ date('d/m', strtotime($interval->final_date)) }}
                                 </th>
                             @endforeach
-                            <th scope="col" class="px-3 py-3">
-                                Total Mês
-                            </th>
+                            <th colspan="2" class="px-2 py-3 text-center">Total Geral</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            @foreach ($dateIntervals as $interval)
+                                <th class="px-2 py-3 text-center">NFE</th>
+                                <th class="px-2 py-3 text-center border-r-2 border-gray-300">Boleto</th>
+                            @endforeach
+                            <th class="px-2 py-3 text-center">NFE</th>
+                            <th class="px-2 py-3 text-center">Boleto</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($data as $sellerName => $values)
                             <tr class="bg-white border-b hover:bg-gray-50">
-                                <td class="px-3 py-4">{{ $sellerName }}</td>
+                                <td class="px-2 py-4">{{ $sellerName }}</td>
                                 @foreach ($dateIntervals as $interval)
                                     @php
                                         $key = "{$interval->initial_date} a {$interval->final_date}";
                                     @endphp
-                                    <td class="px-3 py-4">R$ {{ number_format($values[$key], 2, ',', '.') }}</td>
+                                    <td class="px-2 py-4 text-center">
+                                        R$ {{ number_format($values[$key]['nfe'] ?? 0, 2, ',', '.') }}
+                                    </td>
+                                    <td class="px-2 py-4 text-center border-r-2 border-gray-300">
+                                        R$ {{ number_format($values[$key]['boleto'] ?? 0, 2, ',', '.') }}
+                                    </td>
                                 @endforeach
-                                <td class="px-3 py-4">R$ {{ number_format($values['total'], 2, ',', '.') }}</td>
+                                <td class="px-2 py-4 text-center">
+                                    R$ {{ number_format($values['nfe_total'] ?? 0, 2, ',', '.') }}
+                                </td>
+                                <td class="px-2 py-4 text-center">
+                                    R$ {{ number_format($values['bol_total'] ?? 0, 2, ',', '.') }}
+                                </td>
                             </tr>
                         @endforeach
-                        <tr class="font-bold bg-white border-b hover:bg-gray-50">
-                            <td class="px-3 py-4">Total Geral</td>
+                        <tr class="font-bold bg-gray-50">
+                            <td class="px-2 py-4">Total Geral</td>
                             @foreach ($dateIntervals as $interval)
-                                @php $key = "{$interval->initial_date} a {$interval->final_date}" @endphp
-                                <td class="px-3 py-4">
-                                    R$ {{ number_format($totalsByInterval[$key] ?? 0, 2, ',', '.') }}</td>
+                                @php
+                                    $key = "{$interval->initial_date} a {$interval->final_date}";
+                                @endphp
+                                <td class="px-2 py-4 text-center">
+                                    R$ {{ number_format($totalsByInterval[$key]['nfe'] ?? 0, 2, ',', '.') }}
+                                </td>
+                                <td class="px-2 py-4 text-center border-r-2 border-gray-300">
+                                    R$ {{ number_format($totalsByInterval[$key]['boleto'] ?? 0, 2, ',', '.') }}
+                                </td>
                             @endforeach
-                            <td class="px-3 py-4">
-                                R$ {{ number_format($grandTotal ?? 0, 2, ',', '.') }}</td>
+                            <td class="px-2 py-4 text-center">
+                                R$ {{ number_format($grandTotals['nfe'], 2, ',', '.') }}
+                            </td>
+                            <td class="px-2 py-4 text-center">
+                                R$ {{ number_format($grandTotals['boleto'], 2, ',', '.') }}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -234,8 +260,18 @@
         </div>
     </div>
 
-    <div class="flex justify-center mt-5 dark:bg-white">
-        <div id="chart"></div>
+    <div class="flex flex-col lg:flex-row justify-center mt-5 gap-5 dark:bg-white">
+        <div>
+            <p class="text-2xl font-bold text-center mb-4">Faturamento em NFE's</p>
+
+            <div id="chart-nfe"></div>
+        </div>
+
+        <div>
+            <p class="text-2xl font-bold text-center mb-4">Faturamento em Boletos</p>
+
+            <div id="chart-bol"></div>
+        </div>
     </div>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -247,15 +283,15 @@
             const item = document.querySelector(".content");
 
             var opt = {
-                margin: 0.5,
+                margin: 0,
                 filename: "file.pdf",
                 html2canvas: {
                     scale: 2
                 },
                 jsPDF: {
                     unit: "in",
-                    format: "letter",
-                    orientation: "portrait"
+                    format: "a4", // Certifique-se de usar o formato A4
+                    orientation: "landscape" // Define a orientação como paisagem
                 }
             };
 
@@ -264,15 +300,15 @@
     </script>
 
     <script>
-        function loadChart(chartData) {
-            const series = Object.values(chartData).map(seller => seller.total); // Valores totais
-            const labels = Object.keys(chartData); // Nomes dos vendedores
+        function loadChartNFE(nfeData) {
+            const series = Object.values(nfeData); // Totais de NFE
+            const labels = Object.keys(nfeData); // Nomes dos vendedores
 
             const options = {
                 series: series,
                 chart: {
                     type: 'pie',
-                    width: 380,
+                    width: 450,
                 },
                 labels: labels,
                 responsive: [{
@@ -288,7 +324,37 @@
                 }],
             };
 
-            var chart = new ApexCharts(document.querySelector("#chart"), options);
+            // Renderizar o gráfico no elemento com ID `chart-nfe`
+            const chart = new ApexCharts(document.querySelector("#chart-nfe"), options);
+            chart.render();
+        }
+
+        function loadChartBoleto(bolData) {
+            const series = Object.values(bolData); // Totais de NFE
+            const labels = Object.keys(bolData); // Nomes dos vendedores
+
+            const options = {
+                series: series,
+                chart: {
+                    type: 'pie',
+                    width: 450,
+                },
+                labels: labels,
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200,
+                        },
+                        legend: {
+                            position: 'bottom',
+                        },
+                    },
+                }],
+            };
+
+            // Renderizar o gráfico no elemento com ID `chart-nfe`
+            const chart = new ApexCharts(document.querySelector("#chart-bol"), options);
             chart.render();
         }
     </script>
@@ -296,7 +362,36 @@
     @script
         <script>
             $wire.on('update-chart', (data) => {
-                loadChart(data[0].data)
+
+                //document.querySelector("#chart-nfe").innerHTML = '';
+                //document.querySelector("#chart-bol").innerHTML = '';
+
+                // Acessar o objeto de dados
+                const chartData = data['0']['data'];
+
+                // Limpar gráficos existentes
+                document.querySelector("#chart-nfe").innerHTML = '';
+                document.querySelector("#chart-bol").innerHTML = '';
+
+                // Separar os dados de NFE e Boleto
+                const nfeData = {};
+                const bolData = {};
+
+                Object.keys(chartData).forEach((sellerName) => {
+                    if (
+                        chartData[sellerName]?.nfe_total !== undefined &&
+                        chartData[sellerName]?.bol_total !== undefined
+                    ) {
+                        nfeData[sellerName] = chartData[sellerName].nfe_total;
+                        bolData[sellerName] = chartData[sellerName].bol_total;
+                    }
+                });
+
+                console.log(nfeData)
+
+                // Renderizar os gráficos
+                loadChartNFE(nfeData);
+                loadChartBoleto(bolData);
             });
         </script>
     @endscript

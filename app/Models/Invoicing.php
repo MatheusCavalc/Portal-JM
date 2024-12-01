@@ -9,9 +9,11 @@ class Invoicing extends Model
 {
     protected $fillable = [
         'seller_id',
-        'value',
+        'nfe_value',
+        'bol_value',
         'initial_date',
-        'final_date'
+        'final_date',
+        'month_sale',
     ];
 
     public function seller(): BelongsTo

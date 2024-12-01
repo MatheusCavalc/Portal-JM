@@ -14,7 +14,7 @@ class DetailsInvoicing extends Component
 
     public $totalsByInterval = [];
 
-    public $grandTotal = 0;
+    public $grandTotals = ['nfe' => 0, 'boleto' => 0];
 
     public $chartData = [];
 
@@ -89,94 +89,84 @@ class DetailsInvoicing extends Component
         $previousYear = $previousYear ?? $currentYear;
 
         // Buscar intervalos de datas
-        $dateIntervals = Invoicing::select('initial_date', 'final_date')
-            ->whereMonth('final_date', $currentMonth)
-            ->whereYear('final_date', $currentYear)
+        $dateIntervals = Invoicing::select('initial_date', 'final_date', 'month_sale')
+            ->where(function ($query) use ($currentMonth, $currentYear) {
+                $query->whereMonth('final_date', $currentMonth)
+                    ->whereYear('final_date', $currentYear)
+                    ->orWhereMonth('initial_date', $currentMonth)
+                    ->whereYear('initial_date', $currentYear);
+            })
+            ->where('month_sale', $currentMonth)
             ->distinct()
             ->orderBy('final_date')
             ->get();
 
         if ($dateIntervals->isEmpty()) {
-            $dateIntervals = Invoicing::select('initial_date', 'final_date')
-                ->whereMonth('final_date', $previousMonth)
-                ->whereYear('final_date', $previousYear)
+            $dateIntervals = Invoicing::select('initial_date', 'final_date', 'month_sale')
+                ->where(function ($query) use ($previousMonth, $previousYear) {
+                    $query->whereMonth('final_date', $previousMonth)
+                        ->whereYear('final_date', $previousYear)
+                        ->orWhereMonth('initial_date', $previousMonth)
+                        ->whereYear('initial_date', $previousYear);
+                })
+                ->where('month_sale', $previousMonth)
                 ->distinct()
                 ->orderBy('final_date')
                 ->get();
         }
 
-        // Buscar vendas
-        $sales = Invoicing::with(['seller' => function ($query) {
-            $query->select('id', 'name', 'role'); // Certifique-se de incluir 'role'
-        }])
-            ->select('seller_id', 'initial_date', 'final_date', 'value')
-            ->whereIn('initial_date', $dateIntervals->pluck('initial_date'))
-            ->get();
+        //dd($dateIntervals, $currentMonth);
 
-        // Iniciar a consulta de vendas
+        // Buscar vendas
         $salesQuery = Invoicing::with(['seller' => function ($query) {
-            $query->select('id', 'name', 'role'); // Carrega a role dos vendedores
+            $query->select('id', 'name', 'role');
         }])
-            ->select('seller_id', 'initial_date', 'final_date', 'value')
+            ->select('seller_id', 'initial_date', 'final_date', 'nfe_value', 'bol_value')
             ->whereIn('initial_date', $dateIntervals->pluck('initial_date'));
 
-        // Se o filtro de role não for "all", aplica a condição de role
         if ($this->filterRole !== 'all') {
             $salesQuery->whereHas('seller', function ($query) {
                 $query->where('role', $this->filterRole);
             });
         }
 
-        // Executar a consulta
         $sales = $salesQuery->get();
 
-        // Organizar dados
+        // Organizar os dados
         $data = [];
         $totalsByInterval = [];
-        $grandTotal = 0;
+        $grandTotals = ['nfe' => 0, 'boleto' => 0];
 
         foreach ($sales as $sale) {
             $sellerName = $sale->seller->name;
-            $sellerRole = $sale->seller->role; // Adiciona a role do vendedor
             $key = "{$sale->initial_date} a {$sale->final_date}";
 
-            // Inicializa os dados do vendedor se não existir
             if (!isset($data[$sellerName])) {
-                $data[$sellerName] = [
-                    'role' => $sellerRole, // Armazena a role
-                ];
+                $data[$sellerName] = ['nfe_total' => 0, 'bol_total' => 0];
             }
 
-            $data[$sellerName][$key] = $sale->value;
+            $data[$sellerName][$key]['nfe'] = $sale->nfe_value ?? 0;
+            $data[$sellerName][$key]['boleto'] = $sale->bol_value ?? 0;
 
-            if (!isset($data[$sellerName]['total'])) {
-                $data[$sellerName]['total'] = 0;
-            }
-            $data[$sellerName]['total'] += $sale->value;
+            $data[$sellerName]['nfe_total'] += $sale->nfe_value;
+            $data[$sellerName]['bol_total'] += $sale->bol_value;
 
             if (!isset($totalsByInterval[$key])) {
-                $totalsByInterval[$key] = 0;
+                $totalsByInterval[$key] = ['nfe' => 0, 'boleto' => 0];
             }
-            $totalsByInterval[$key] += $sale->value;
 
-            $grandTotal += $sale->value;
-        }
+            $totalsByInterval[$key]['nfe'] += $sale->nfe_value;
+            $totalsByInterval[$key]['boleto'] += $sale->bol_value;
 
-        // Garantir que todas as colunas estejam presentes para cada vendedor
-        foreach ($data as $sellerName => $intervals) {
-            foreach ($dateIntervals as $interval) {
-                $key = "{$interval->initial_date} a {$interval->final_date}";
-                if (!isset($data[$sellerName][$key])) {
-                    $data[$sellerName][$key] = 0;
-                }
-            }
+            $grandTotals['nfe'] += $sale->nfe_value;
+            $grandTotals['boleto'] += $sale->bol_value;
         }
 
         return [
             'data' => $data,
             'totalsByInterval' => $totalsByInterval,
-            'grandTotal' => $grandTotal,
-            'dateIntervals' => $dateIntervals
+            'grandTotals' => $grandTotals,
+            'dateIntervals' => $dateIntervals,
         ];
     }
 
@@ -197,8 +187,17 @@ class DetailsInvoicing extends Component
         $salesQuery = Invoicing::with(['seller' => function ($query) {
             $query->select('id', 'name', 'role'); // Certifique-se de carregar a role dos vendedores
         }])
-            ->select('seller_id', 'initial_date', 'final_date', 'value')
-            ->whereBetween('final_date', [$this->filterInitialDate, $this->filterFinalDate]);
+            ->select('seller_id', 'initial_date', 'final_date', 'nfe_value', 'bol_value')
+            ->where(function ($query) {
+                // Considera as vendas cujas datas (início ou fim) estejam no intervalo selecionado
+                $query->whereBetween('final_date', [$this->filterInitialDate, $this->filterFinalDate])
+                    ->orWhereBetween('initial_date', [$this->filterInitialDate, $this->filterFinalDate])
+                    ->orWhere(function ($query) {
+                        // Inclui vendas que começam antes e terminam depois do intervalo
+                        $query->where('initial_date', '<', $this->filterInitialDate)
+                            ->where('final_date', '>', $this->filterFinalDate);
+                    });
+            });
 
         // Aplicar o filtro de role
         if ($this->filterRole !== 'all') {
@@ -218,26 +217,43 @@ class DetailsInvoicing extends Component
     {
         $this->data = [];
         $this->totalsByInterval = [];
-        $this->grandTotal = 0;
+        $this->grandTotals = ['nfe' => 0, 'boleto' => 0];  // Inicialização corrigida
+
+        //dd($sales);
 
         foreach ($sales as $sale) {
-            $sellerName = $sale->seller->name;
-            $key = "{$sale->initial_date} a {$sale->final_date}";
+            // Verifique se o item é um array ou objeto
+            $sellerName = $sale->seller->name; // Acessando seller_id (ou use o nome conforme necessário)
+            $key = "{$sale['initial_date']} a {$sale['final_date']}"; // Acesso por índice
 
-            $this->data[$sellerName][$key] = $sale->value;
+            // Atribuindo o valor para nfe_value ou bol_value com verificação de null
+            $nfe_value = $sale['nfe_value'] ?? 0;
+            $bol_value = $sale['bol_value'] ?? 0;
 
-            if (!isset($this->data[$sellerName]['total'])) {
-                $this->data[$sellerName]['total'] = 0;
+            // Atualizando os dados da venda
+            $this->data[$sellerName][$key] = $nfe_value + $bol_value;  // Somando os dois valores
+
+            // Calculando o total por vendedor
+            if (!isset($this->data[$sellerName]['nfe_total']) || !isset($this->data[$sellerName]['bol_total'])) {
+                $this->data[$sellerName]['nfe_total'] = 0;
+                $this->data[$sellerName]['bol_total'] = 0;
             }
-            $this->data[$sellerName]['total'] += $sale->value;
 
+            $this->data[$sellerName]['nfe_total'] += $nfe_value;
+            $this->data[$sellerName]['bol_total'] += $bol_value;
+
+            // Calculando os totais por intervalo
             if (!isset($this->totalsByInterval[$key])) {
                 $this->totalsByInterval[$key] = 0;
             }
-            $this->totalsByInterval[$key] += $sale->value;
+            $this->totalsByInterval[$key] += $nfe_value + $bol_value;
 
-            $this->grandTotal += $sale->value;
+            // Somando os totais gerais de NFE e Boleto
+            $this->grandTotals['nfe'] += $nfe_value;
+            $this->grandTotals['boleto'] += $bol_value;
         }
+
+        //dd($this->data);
 
         // Atualizar o gráfico com os dados filtrados
         $this->dispatch('update-chart', ['data' => $this->data]);
@@ -245,6 +261,7 @@ class DetailsInvoicing extends Component
 
     public function defaultFilter()
     {
+        // Aplicar os filtros de vendas usando os parâmetros de data atuais e anteriores
         $filters = $this->filterSales(
             $this->currentMonth,
             $this->currentYear,
@@ -252,13 +269,24 @@ class DetailsInvoicing extends Component
             $this->previousYear
         );
 
+        // Atualizar as propriedades do componente com os dados filtrados
         $this->data = $filters['data'];
         $this->totalsByInterval = $filters['totalsByInterval'];
-        $this->grandTotal = $filters['grandTotal'];
+        $this->grandTotals = $filters['grandTotals']; // Inclui totais separados para NFE e Boleto
         $this->dateIntervals = $filters['dateIntervals'];
-        $this->chartData = $this->data;
 
-        $this->dispatch('update-chart', ['data' => $this->data]);
+        // Preparar os dados do gráfico. Aqui, você pode adaptar para exibir valores separados de NFE e Boleto.
+        $this->chartData = [
+            'nfe' => array_column($this->data, 'nfe_total'),
+            'boleto' => array_column($this->data, 'bol_total'),
+            'total' => array_column($this->data, 'total'),
+        ];
+
+        // Disparar um evento para atualizar o gráfico no frontend
+        //$this->dispatch('update-chart', [
+        //    'data' => $this->chartData,
+        //    'intervals' => $this->dateIntervals->toArray(),
+        //]);
     }
 
     public function applyFilters()
