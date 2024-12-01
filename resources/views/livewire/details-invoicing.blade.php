@@ -363,8 +363,7 @@
         <script>
             $wire.on('update-chart', (data) => {
 
-                //document.querySelector("#chart-nfe").innerHTML = '';
-                //document.querySelector("#chart-bol").innerHTML = '';
+                console.log('Oi')
 
                 // Acessar o objeto de dados
                 const chartData = data['0']['data'];
@@ -386,8 +385,6 @@
                         bolData[sellerName] = chartData[sellerName].bol_total;
                     }
                 });
-
-                console.log(nfeData)
 
                 // Renderizar os gráficos
                 loadChartNFE(nfeData);

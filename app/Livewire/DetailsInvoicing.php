@@ -275,18 +275,11 @@ class DetailsInvoicing extends Component
         $this->grandTotals = $filters['grandTotals']; // Inclui totais separados para NFE e Boleto
         $this->dateIntervals = $filters['dateIntervals'];
 
-        // Preparar os dados do gráfico. Aqui, você pode adaptar para exibir valores separados de NFE e Boleto.
-        $this->chartData = [
-            'nfe' => array_column($this->data, 'nfe_total'),
-            'boleto' => array_column($this->data, 'bol_total'),
-            'total' => array_column($this->data, 'total'),
-        ];
+        //dd($this->data, array_column($this->data, 'nfe_total'));
 
-        // Disparar um evento para atualizar o gráfico no frontend
-        //$this->dispatch('update-chart', [
-        //    'data' => $this->chartData,
-        //    'intervals' => $this->dateIntervals->toArray(),
-        //]);
+        // Preparar os dados do gráfico. Aqui, você pode adaptar para exibir valores separados de NFE e Boleto.
+
+        $this->dispatch('update-chart', ['data' => $this->data]);
     }
 
     public function applyFilters()
@@ -308,7 +301,7 @@ class DetailsInvoicing extends Component
         $this->defaultFilter();
 
         // Atualiza o gráfico com os dados processados
-        $this->dispatch('update-chart', ['data' => $this->data]);
+        //$this->dispatch('update-chart', ['data' => $this->data]);
     }
 
     public function render()
