@@ -53,6 +53,10 @@ class InvoicingResource extends Resource
                 Forms\Components\DatePicker::make('final_date')
                     ->required()
                     ->placeholder('Data Final'),
+                Forms\Components\TextInput::make('month_sale')
+                    ->required()
+                    ->placeholder('Mes da Venda')
+                    ->numeric(),
             ]);
     }
 
@@ -74,6 +78,9 @@ class InvoicingResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('final_date')
                     ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('month_sale')
+                    ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
